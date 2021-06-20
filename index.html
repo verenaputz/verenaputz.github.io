@@ -19,9 +19,9 @@
 
         import * as THREE from '/threejs/r108/build/three.module.js';
         import {OrbitControls} from '/threejs/r108/examples/jsm/controls/OrbitControls.js';
-        import {GLTFLoader} from '/threejs/r108/examples/jsm/loaders/GLTFLoader.js';
+    import {GLTFLoader} from '/threejs/r108/examples/jsm/loaders/GLTFLoader.js';
         import * as THREE from 'https://unpkg.com/three/build/three.module.js';
-		import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+			import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
 
 			var container;
 			var camera, scene, renderer;
@@ -31,7 +31,6 @@
 			animate();
 
 			function init() {
-
 
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
@@ -54,14 +53,6 @@
 
 				//
 
-
-                const gltfLoader = new GLTFLoader();
-  const url = 'uploads_files_2397542_black_leather_chair.gltf';
-  gltfLoader.load(url, (gltf) => {
-    const root = gltf.scene;
-    scene.add(root);
-  });
-
 				document.body.appendChild( ARButton.createButton( renderer ) );
 
 				//
@@ -70,25 +61,11 @@
 
 				function onSelect() {
 
-					// var material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
-					// var mesh = new THREE.Mesh( geometry, material );
-					// mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-					// mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-					// scene.add( mesh );
-
-
-                    const loader = new THREE.GLTFLoader();
-let reticle;
-loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
-  reticle = gltf.scene;
-  reticle.visible = false;
-  scene.add(reticle);
-})
-
-let flower;
-loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf", function(gltf) {
-  flower = gltf.scene;
-});
+					var material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
+					var mesh = new THREE.Mesh( geometry, material );
+					mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
+					mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+					scene.add( mesh );
 
 				}
 

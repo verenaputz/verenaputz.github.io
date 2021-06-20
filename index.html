@@ -16,6 +16,10 @@
 
     <script type="module">
 
+
+        import * as THREE from '/threejs/r108/build/three.module.js';
+        import {OrbitControls} from '/threejs/r108/examples/jsm/controls/OrbitControls.js';
+        import {GLTFLoader} from '/threejs/r108/examples/jsm/loaders/GLTFLoader.js';
         import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 			import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
 
@@ -93,7 +97,12 @@
 			}
 
 			function render() {
-
+                const gltfLoader = new GLTFLoader();
+  const url = 'Unbenannt.gltf';
+  gltfLoader.load(url, (gltf) => {
+    const root = gltf.scene;
+    scene.add(root);
+  });
 				renderer.render( scene, camera );
 
 			}

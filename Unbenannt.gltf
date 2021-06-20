@@ -1,0 +1,209 @@
+{
+    "asset": {
+        "copyright": "2020 (c) Adobe Inc.",
+        "generator": "Adobe Dimension - 695fff5264e3b00eaca24d3119e0b5e4c864ae29",
+        "version": "2.0"
+    },
+    "accessors": [
+        {
+            "bufferView": 0,
+            "componentType": 5126,
+            "count": 2258,
+            "type": "VEC3",
+            "max": [
+                0.31852543354034426,
+                0.8478789925575256,
+                0.31852543354034426
+            ],
+            "min": [
+                -0.31852543354034426,
+                0.001711179967969656,
+                -0.31852543354034426
+            ]
+        },
+        {
+            "bufferView": 1,
+            "componentType": 5126,
+            "count": 2258,
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 2,
+            "componentType": 5126,
+            "count": 2258,
+            "type": "VEC2"
+        },
+        {
+            "bufferView": 3,
+            "componentType": 5125,
+            "count": 8148,
+            "type": "SCALAR",
+            "max": [
+                2257.0
+            ],
+            "min": [
+                0.0
+            ]
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 27096,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 27096,
+            "byteLength": 27096,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 54192,
+            "byteLength": 18064,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 72256,
+            "byteLength": 32592,
+            "target": 34963
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 104848,
+            "uri": "Unbenannt_binary.bin"
+        }
+    ],
+    "cameras": [
+        {
+            "perspective": {
+                "znear": 0.000024719765860936606,
+                "yfov": 0.6024156808853149,
+                "zfar": 2.0,
+                "aspectRatio": 1.3333333730697632
+            },
+            "type": "perspective",
+            "name": "render_camera"
+        }
+    ],
+    "images": [
+        {
+            "name": "basecolor_image_texture",
+            "uri": "Unbenannt_images/basecolor_image_texture.jpg",
+            "mimeType": "image/jpeg"
+        },
+        {
+            "name": "ambientocclusion_image_texture_roughness_image_texture",
+            "uri": "Unbenannt_images/ambientocclusion_image_texture_roughness_image_texture.png",
+            "mimeType": "image/png"
+        },
+        {
+            "name": "normal_image_texture",
+            "uri": "Unbenannt_images/normal_image_texture.png",
+            "mimeType": "image/png"
+        }
+    ],
+    "materials": [
+        {
+            "pbrMetallicRoughness": {
+                "baseColorTexture": {
+                    "index": 0
+                },
+                "metallicRoughnessTexture": {
+                    "index": 1
+                }
+            },
+            "normalTexture": {
+                "index": 2
+            },
+            "occlusionTexture": {
+                "index": 1
+            },
+            "name": "Verkratztes Kupfer",
+            "doubleSided": true
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Beistelltisch",
+            "primitives": [
+                {
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 1,
+                        "TEXCOORD_0": 2
+                    },
+                    "indices": 3,
+                    "material": 0
+                }
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "translation": [
+                4.463136196136475,
+                1.8017802238464356,
+                4.463134288787842
+            ],
+            "rotation": [
+                -0.12059047073125839,
+                0.379409521818161,
+                0.04995020851492882,
+                0.9159756302833557
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.9999999403953552
+            ],
+            "camera": 0,
+            "name": "render_camera_n3d"
+        },
+        {
+            "translation": [
+                1.8902013301849366,
+                0.0,
+                1.8756141662597657
+            ],
+            "mesh": 0,
+            "name": "Beistelltisch"
+        }
+    ],
+    "samplers": [
+        {},
+        {},
+        {}
+    ],
+    "scenes": [
+        {
+            "nodes": [
+                0,
+                1
+            ],
+            "name": "scene"
+        }
+    ],
+    "textures": [
+        {
+            "name": "basecolor_image_texture",
+            "sampler": 0,
+            "source": 0
+        },
+        {
+            "name": "ambientocclusion_image_texture_roughness_image_texture",
+            "sampler": 1,
+            "source": 1
+        },
+        {
+            "name": "normal_image_texture",
+            "sampler": 2,
+            "source": 2
+        }
+    ],
+    "scene": 0
+}

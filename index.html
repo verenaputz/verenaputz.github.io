@@ -65,11 +65,18 @@
 					// scene.add( mesh );
 
                     const loader = new THREE.GLTFLoader();
-                    let flower;
+let reticle;
+loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
+  reticle = gltf.scene;
+  reticle.visible = false;
+  scene.add(reticle);
+})
+
+let flower;
 loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf", function(gltf) {
   flower = gltf.scene;
-  scene.add(flower);
 });
+
 				}
 
 				controller = renderer.xr.getController( 0 );

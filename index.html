@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - light probe from cubeCamera</title>
+		<title>three.js webgl - glTF 2.0 - variants</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -9,101 +9,155 @@
 
 	<body>
 		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - light probe from cubeCamera
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GLTFLoader + <a href="https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_variants" target="_blank" rel="noopener">KHR_materials_variants</a> extension<br />
+			<a href="https://github.com/pushmatrix/glTF-Sample-Models/tree/master/2.0/MaterialsVariantsShoe" target="_blank" rel="noopener">Materials Variants Shoe</a> by
+			<a href="https://github.com/Shopify" target="_blank" rel="noopener">Shopify, Inc</a><br />
+			<a href="https://hdrihaven.com/hdri/?h=quarry_01" target="_blank" rel="noopener">Quarry</a> by <a href="https://hdrihaven.com/" target="_blank" rel="noopener">HDRI Haven</a>
 		</div>
 
 		<script type="module">
 
 			import * as THREE from '../build/three.module.js';
 
+			import { GUI } from './jsm/libs/dat.gui.module.js';
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
-			import { LightProbeHelper } from './jsm/helpers/LightProbeHelper.js';
-			import { LightProbeGenerator } from './jsm/lights/LightProbeGenerator.js';
+			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
 
-			let renderer, scene, camera, cubeCamera;
+			let camera, scene, renderer;
+			let gui;
 
-			let lightProbe;
+			const state = { variant: 'midnight' };
 
 			init();
+			render();
 
 			function init() {
 
-				// renderer
+				const container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
+				camera.position.set( 2.5, 1.5, 3.0 );
+
+				scene = new THREE.Scene();
+
+				new RGBELoader()
+					.setDataType( THREE.UnsignedByteType )
+					.setPath( 'textures/equirectangular/' )
+					.load( 'quarry_01_1k.hdr', function ( texture ) {
+
+						const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+
+						scene.background = envMap;
+						scene.environment = envMap;
+
+						texture.dispose();
+						pmremGenerator.dispose();
+
+						render();
+
+						// model
+
+						const loader = new GLTFLoader().setPath( 'models/gltf/MaterialsVariantsShoe/glTF/' );
+						loader.load( 'MaterialsVariantsShoe.gltf', function ( gltf ) {
+
+							gltf.scene.scale.set( 10.0, 10.0, 10.0 );
+
+							scene.add( gltf.scene );
+
+							// GUI
+							gui = new GUI();
+
+							// Details of the KHR_materials_variants extension used here can be found below
+							// https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_variants
+							const parser = gltf.parser;
+							const variantsExtension = gltf.userData.gltfExtensions[ 'KHR_materials_variants' ];
+							const variants = variantsExtension.variants.map( ( variant ) => variant.name );
+							const variantsCtrl = gui.add( state, 'variant', variants ).name( 'Variant' );
+
+							selectVariant( scene, parser, variantsExtension, state.variant );
+
+							variantsCtrl.onChange( ( value ) => selectVariant( scene, parser, variantsExtension, value ) );
+
+							render();
+
+						} );
+
+					} );
+
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.toneMappingExposure = 1;
 				renderer.outputEncoding = THREE.sRGBEncoding;
+				container.appendChild( renderer.domElement );
 
-				// scene
-				scene = new THREE.Scene();
+				const pmremGenerator = new THREE.PMREMGenerator( renderer );
+				pmremGenerator.compileEquirectangularShader();
 
-				// camera
-				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
-				camera.position.set( 0, 0, 30 );
-
-				const cubeRenderTarget = new THREE.WebGLCubeRenderTarget( 256, {
-					encoding: THREE.sRGBEncoding, // since gamma is applied during rendering, the cubeCamera renderTarget texture encoding must be sRGBEncoding
-					format: THREE.RGBAFormat
-				} );
-
-				cubeCamera = new THREE.CubeCamera( 1, 1000, cubeRenderTarget );
-
-				// controls
 				const controls = new OrbitControls( camera, renderer.domElement );
-				controls.addEventListener( 'change', render );
-				controls.minDistance = 10;
-				controls.maxDistance = 50;
-				controls.enablePan = false;
+				controls.addEventListener( 'change', render ); // use if there is no animation loop
+				controls.minDistance = 2;
+				controls.maxDistance = 10;
+				controls.target.set( 0, 0.5, - 0.2 );
+				controls.update();
 
-				// probe
-				lightProbe = new THREE.LightProbe();
-				scene.add( lightProbe );
+				window.addEventListener( 'resize', onWindowResize );
 
-				// envmap
-				const genCubeUrls = function ( prefix, postfix ) {
+			}
 
-					return [
-						prefix + 'px' + postfix, prefix + 'nx' + postfix,
-						prefix + 'py' + postfix, prefix + 'ny' + postfix,
-						prefix + 'pz' + postfix, prefix + 'nz' + postfix
-					];
+			function selectVariant( scene, parser, extension, variantName ) {
 
-				};
+				const variantIndex = extension.variants.findIndex( ( v ) => v.name.includes( variantName ) );
 
-				const urls = genCubeUrls( 'textures/cube/pisa/', '.png' );
+				scene.traverse( async ( object ) => {
 
-				new THREE.CubeTextureLoader().load( urls, function ( cubeTexture ) {
+					if ( ! object.isMesh || ! object.userData.gltfExtensions ) return;
 
-					cubeTexture.encoding = THREE.sRGBEncoding;
+					const meshVariantDef = object.userData.gltfExtensions[ 'KHR_materials_variants' ];
 
-					scene.background = cubeTexture;
+					if ( ! meshVariantDef ) return;
 
-					cubeCamera.update( renderer, scene );
+					if ( ! object.userData.originalMaterial ) {
 
-					lightProbe.copy( LightProbeGenerator.fromCubeRenderTarget( renderer, cubeRenderTarget ) );
+						object.userData.originalMaterial = object.material;
 
-					scene.add( new LightProbeHelper( lightProbe, 5 ) );
+					}
+
+					const mapping = meshVariantDef.mappings
+						.find( ( mapping ) => mapping.variants.includes( variantIndex ) );
+
+					if ( mapping ) {
+
+						object.material = await parser.getDependency( 'material', mapping.material );
+						parser.assignFinalMaterial(object);
+
+					} else {
+
+						object.material = object.userData.originalMaterial;
+
+					}
 
 					render();
 
 				} );
 
-				// listener
-				window.addEventListener( 'resize', onWindowResize );
-
 			}
 
 			function onWindowResize() {
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
-
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
 
 				render();
 
 			}
+
+			//
 
 			function render() {
 

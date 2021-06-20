@@ -1,148 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - glTF 2.0 - variants</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
-	</head>
 
-	<body>
-		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GLTFLoader + <a href="https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_variants" target="_blank" rel="noopener">KHR_materials_variants</a> extension<br />
-			<a href="https://github.com/pushmatrix/glTF-Sample-Models/tree/master/2.0/MaterialsVariantsShoe" target="_blank" rel="noopener">Materials Variants Shoe</a> by
-			<a href="https://github.com/Shopify" target="_blank" rel="noopener">Shopify, Inc</a><br />
-			<a href="https://hdrihaven.com/hdri/?h=quarry_01" target="_blank" rel="noopener">Quarry</a> by <a href="https://hdrihaven.com/" target="_blank" rel="noopener">HDRI Haven</a>
-		</div>
+<head>
+    <title>three.js ar - cones</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link type="text/css" rel="stylesheet" href="main.css">
+</head>
 
-		<script type="module">
+<body>
 
-			import * as THREE from '../build/three.module.js';
+    <div id="info">
+        <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - cones<br />
+    </div>
 
-			import { GUI } from './jsm/libs/dat.gui.module.js';
-			import { OrbitControls } from './jsm/controls/OrbitControls.js';
-			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
-			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
+    <script type="module">
 
-			let camera, scene, renderer;
-			let gui;
+        import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
 
-			const state = { variant: 'midnight' };
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+			import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+
+			var container;
+			var camera, scene, renderer;
+			var controller;
 
 			init();
-			render();
+			animate();
 
 			function init() {
 
-				const container = document.createElement( 'div' );
+				container = document.createElement( 'div' );
 				document.body.appendChild( container );
-
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
-				camera.position.set( 2.5, 1.5, 3.0 );
 
 				scene = new THREE.Scene();
 
-				new RGBELoader()
-					.setDataType( THREE.UnsignedByteType )
-					.setPath( 'textures/equirectangular/' )
-					.load( 'quarry_01_1k.hdr', function ( texture ) {
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
 
-						const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+				var light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+				light.position.set( 0.5, 1, 0.25 );
+				scene.add( light );
 
-						scene.background = envMap;
-						scene.environment = envMap;
+				//
 
-						texture.dispose();
-						pmremGenerator.dispose();
-
-						render();
-
-						// model
-
-						const loader = new GLTFLoader().setPath( 'models/gltf/MaterialsVariantsShoe/glTF/' );
-						loader.load( 'MaterialsVariantsShoe.gltf', function ( gltf ) {
-
-							gltf.scene.scale.set( 10.0, 10.0, 10.0 );
-
-							scene.add( gltf.scene );
-
-							// GUI
-							gui = new GUI();
-
-							// Details of the KHR_materials_variants extension used here can be found below
-							// https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_variants
-							const parser = gltf.parser;
-							const variantsExtension = gltf.userData.gltfExtensions[ 'KHR_materials_variants' ];
-							const variants = variantsExtension.variants.map( ( variant ) => variant.name );
-							const variantsCtrl = gui.add( state, 'variant', variants ).name( 'Variant' );
-
-							selectVariant( scene, parser, variantsExtension, state.variant );
-
-							variantsCtrl.onChange( ( value ) => selectVariant( scene, parser, variantsExtension, value ) );
-
-							render();
-
-						} );
-
-					} );
-
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.toneMapping = THREE.ACESFilmicToneMapping;
-				renderer.toneMappingExposure = 1;
-				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.xr.enabled = true;
 				container.appendChild( renderer.domElement );
 
-				const pmremGenerator = new THREE.PMREMGenerator( renderer );
-				pmremGenerator.compileEquirectangularShader();
+				//
 
-				const controls = new OrbitControls( camera, renderer.domElement );
-				controls.addEventListener( 'change', render ); // use if there is no animation loop
-				controls.minDistance = 2;
-				controls.maxDistance = 10;
-				controls.target.set( 0, 0.5, - 0.2 );
-				controls.update();
+				document.body.appendChild( ARButton.createButton( renderer ) );
 
-				window.addEventListener( 'resize', onWindowResize );
+				//
 
-			}
+				var geometry = new THREE.CylinderBufferGeometry( 0, 0.05, 0.2, 32 ).rotateX( Math.PI / 2 );
 
-			function selectVariant( scene, parser, extension, variantName ) {
+				function onSelect() {
 
-				const variantIndex = extension.variants.findIndex( ( v ) => v.name.includes( variantName ) );
+					// var material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
+					// var mesh = new THREE.Mesh( geometry, material );
+					// mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
+					// mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+					// scene.add( mesh );
 
-				scene.traverse( async ( object ) => {
+                    const gltfLoader = new GLTFLoader();
+                    gltfLoader.load('./chair.gltf', (gltf) => {
+                    const root = gltf.scene;
+                    // root.scene.scale.set(10,10,10);
+                    scene.add(root);
 
-					if ( ! object.isMesh || ! object.userData.gltfExtensions ) return;
+				});
+                    }
 
-					const meshVariantDef = object.userData.gltfExtensions[ 'KHR_materials_variants' ];
+				controller = renderer.xr.getController( 0 );
+				controller.addEventListener( 'select', onSelect );
+				scene.add( controller );
 
-					if ( ! meshVariantDef ) return;
+				//
 
-					if ( ! object.userData.originalMaterial ) {
-
-						object.userData.originalMaterial = object.material;
-
-					}
-
-					const mapping = meshVariantDef.mappings
-						.find( ( mapping ) => mapping.variants.includes( variantIndex ) );
-
-					if ( mapping ) {
-
-						object.material = await parser.getDependency( 'material', mapping.material );
-						parser.assignFinalMaterial(object);
-
-					} else {
-
-						object.material = object.userData.originalMaterial;
-
-					}
-
-					render();
-
-				} );
+				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
 
@@ -153,11 +91,15 @@
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
-				render();
-
 			}
 
 			//
+
+			function animate() {
+
+				renderer.setAnimationLoop( render );
+
+			}
 
 			function render() {
 
@@ -166,6 +108,6 @@
 			}
 
 		</script>
+</body>
 
-	</body>
 </html>

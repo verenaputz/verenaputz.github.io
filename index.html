@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link type="text/css" rel="stylesheet" href="main.css">
+    <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 
 <body>
@@ -16,10 +17,6 @@
 
     <script type="module">
 
-
-        import * as THREE from '/threejs/r108/build/three.module.js';
-        import {OrbitControls} from '/threejs/r108/examples/jsm/controls/OrbitControls.js';
-    import {GLTFLoader} from '/threejs/r108/examples/jsm/loaders/GLTFLoader.js';
         import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 			import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
 
@@ -61,11 +58,19 @@
 
 				function onSelect() {
 
-					var material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
-					var mesh = new THREE.Mesh( geometry, material );
-					mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-					mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-					scene.add( mesh );
+					// var material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
+					// var mesh = new THREE.Mesh( geometry, material );
+					// mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
+					// mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+					// scene.add( mesh );
+
+                    const loader = new THREE.GLTFLoader();
+let reticle;
+loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
+  reticle = gltf.scene;
+  reticle.visible = false;
+  scene.add(reticle);
+})
 
 				}
 
